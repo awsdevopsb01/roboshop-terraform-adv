@@ -18,6 +18,7 @@ resource "aws_route53_record" "dnsrecord" {
 }
 
 resource "null_resource" "provisioner" {
+  count = var.provisioner ? 1 : 0
   depends_on = [aws_instance.instance, aws_route53_record.dnsrecord]
   provisioner "remote-exec" {
     connection {
