@@ -4,6 +4,7 @@ module "database_servers" {
   component_name = each.value["name"]
   instance_type = each.value["instance_type"]
   provisioner = true
+  app_type = "db"
 }
 
 module "app_servers" {
@@ -12,4 +13,6 @@ module "app_servers" {
   source = "./module"
   component_name = each.value["name"]
   instance_type = each.value["instance_type"]
+  provisioner = true
+  app_type = "app"
 }
