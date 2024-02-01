@@ -30,3 +30,52 @@ resource "null_resource" "provisioner" {
     inline = var.app_type == "db" ? local.db_commands : local.app_commands
   }
 }
+
+resource "aws_iam_role" "iam_role" {
+  name = "${var.component_name}-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Sid    = ""
+        Principal = {
+          Service = "ec2.amazonaws.com"
+        }
+      },
+    ]
+  })
+
+  tags = {
+    tag-key = "${var.component_name}-role"
+  }
+}
+
+resource "aws_iam_policy" "iam-policy" {
+  name        = "${var.component_name}-ssm-policy"
+  path        = "/"
+  description = "Iam Policy for microservices"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    "Statement": [
+      {
+        "Sid": "VisualEditor0",
+        "Effect": "Allow",
+        "Action": [
+          "ssm:DescribeParameters",
+          "ssm:GetParameterHistory",
+          "ssm:GetParametersByPath",
+          "ssm:GetParameters",
+          "ssm:GetParameter"
+        ],
+        "Resource": "*"
+      }
+    ]
+  })
+  tags = {
+    tag-key = "${var.component_name}-ssm-policy"
+  }
+}
