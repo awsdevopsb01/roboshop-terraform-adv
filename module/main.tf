@@ -3,6 +3,7 @@ resource "aws_instance" "instance" {
   ami = data.aws_ami.centos.image_id
   instance_type = var.instance_type
   vpc_security_group_ids = [data.aws_security_group.selected.id]
+  iam_instance_profile = aws_iam_instance_profile.iam_ssm_instance_profile.name
 
   tags = {
     Name  = var.component_name
@@ -53,29 +54,39 @@ resource "aws_iam_role" "iam_role" {
   }
 }
 
-resource "aws_iam_policy" "iam-policy" {
-  name        = "${var.component_name}-ssm-policy"
-  path        = "/"
-  description = "Iam Policy for microservices"
+resource "aws_iam_role_policy" "iam_ssm_role_policy" {
+  name = "${var.component_name}-role-policy"
+  role = aws_iam_role.iam_role.id
 
-  policy = jsonencode({
+ policy = jsonencode({
     Version = "2012-10-17"
-    "Statement": [
+    Statement = [
       {
         "Sid": "VisualEditor0",
         "Effect": "Allow",
         "Action": [
-          "ssm:DescribeParameters",
+          "kms:Decrypt",
           "ssm:GetParameterHistory",
           "ssm:GetParametersByPath",
           "ssm:GetParameters",
           "ssm:GetParameter"
         ],
+        "Resource": [
+          "arn:aws:kms:us-east-1:280878923025:key/1598ad31-8c90-467c-8523-f3a951215606",
+          "arn:aws:ssm:us-east-1:280878923025:parameter/dev.frontend.*"
+        ]
+      },
+      {
+        "Sid": "VisualEditor1",
+        "Effect": "Allow",
+        "Action": "ssm:DescribeParameters",
         "Resource": "*"
       }
     ]
   })
-  tags = {
-    tag-key = "${var.component_name}-ssm-policy"
-  }
+}
+
+resource "aws_iam_instance_profile" "iam_ssm_instance_profile" {
+  name = "${var.component_name}-instance-profile"
+  role = aws_iam_role.iam_role.name
 }
