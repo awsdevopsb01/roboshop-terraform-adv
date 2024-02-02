@@ -73,7 +73,7 @@ resource "aws_iam_role_policy" "iam_ssm_role_policy" {
         ],
         "Resource": [
           "arn:aws:kms:us-east-1:280878923025:key/1598ad31-8c90-467c-8523-f3a951215606",
-          "arn:aws:ssm:us-east-1:280878923025:parameter/dev.frontend.*"
+          "arn:aws:ssm:us-east-1:280878923025:parameter/dev.${var.component_name}.*"
         ]
       },
       {
