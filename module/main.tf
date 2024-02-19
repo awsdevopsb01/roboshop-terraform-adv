@@ -5,9 +5,7 @@ resource "aws_instance" "instance" {
   vpc_security_group_ids = [data.aws_security_group.selected.id]
   iam_instance_profile = aws_iam_instance_profile.iam_ssm_instance_profile.name
 
-  tags = {
-    Name  = var.component_name
-  }
+  tags = var.app_type == "app" ? local.app_tags:local.db_tags
 }
 
 resource "aws_route53_record" "dnsrecord" {
